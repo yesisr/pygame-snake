@@ -3,7 +3,7 @@
 # Run the game
 
 ```bash
-python3 -m venv venv
+python3.12 -m venv venv
 ```
 
 ```bash
@@ -11,9 +11,13 @@ source venv/bin/activate
 ```
 
 ```bash
-pip install -U pygame
+pip install --upgrade pip  
 ```
 
 ```bash
-python3 src/main.py
+pip install pygame
+```
+
+```bash
+python src/main.py
 ```
