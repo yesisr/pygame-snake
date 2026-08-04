@@ -21,3 +21,5 @@ pip install pygame
 ```bash
 python src/main.py
 ```
+
+

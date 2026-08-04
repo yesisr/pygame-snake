@@ -1,1 +1,7 @@
 venv/
+.vscode/
+.DS_Store
+
+#   cache
+src/__pycache__
+src/ui/__pycache__
