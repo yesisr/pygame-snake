@@ -3,6 +3,10 @@ import pygame
 from snake import Snake
 from cube import Cube
 from main_menu import MainMenu
+from gameover import GameOver
+
+caption_text = "snake"
+num_tail_per_cube = 3   #   creates three tail segments from 1 cube
 
 class Game:
     def __init__(self):
@@ -10,7 +14,7 @@ class Game:
         pygame.init()
         pygame.font.init()
         self.screen = pygame.display.set_mode((1280, 720))
-        pygame.display.set_caption("snake")
+        pygame.display.set_caption(caption_text)
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 50)
 
@@ -19,18 +23,22 @@ class Game:
 
         self.state = "MENU"  # game state
         self.menu_screen = MainMenu(self.width, self.height)
-        
-        #   initialize objects
-        self.snake = Snake(self.width / 4, self.height / 2, 40, 200, self.width, self.height)
-        self.cubes = []
-        
-        self.points = 0
-        self.pressedPlay = False
-        self.running = True
-        
+        self.gameover_screen = GameOver(self.width, self.height)
+
         #   start timer (5 seconds to spawn)
         self.SPAWN_CUBE_EVENT = pygame.USEREVENT + 1
         pygame.time.set_timer(self.SPAWN_CUBE_EVENT, 5000)
+        
+        self.reset_game()
+        self.running = True
+        
+        
+    def reset_game(self):
+        """resets every gameplay variable for the game loop"""
+        self.snake = Snake(self.width / 4, self.height / 2, 40, 220, self.width, self.height)
+        self.cubes = []
+        self.points = 0
+        self.cubes.append(Cube(30, self.width, self.height))
 
     def handle_events(self):
         events = pygame.event.get()
@@ -38,53 +46,64 @@ class Game:
             if event.type == pygame.QUIT:
                 self.running = False
 
-        #   state 1: menu handling
-        if self.state == "MENU":
-            action = self.menu_screen.handle_events(events)
-            if action == "PLAY":
-                self.state = "PLAYING"
-                #   spawns the first cube
-                self.cubes.append(Cube(30, self.width, self.height)) 
+            #   state 1: gameplay handling
+            if self.state == "PLAYING" and event.type == self.SPAWN_CUBE_EVENT:
+                self.cubes.append(Cube(30, self.width, self.height))
 
-        #   state 2: gameplay handling
-        elif self.state == "PLAYING":
-            for event in events:
-                if event.type == self.SPAWN_CUBE_EVENT:
-                    self.cubes.append(Cube(30, self.width, self.height))
+        #   state 2: menu handling
+        if self.state == "MENU":
+            if self.menu_screen.handle_events(events) == "PLAY":
+                self.reset_game()
+                self.state = "PLAYING"
+
+        #   state 3: gameover handling
+        elif self.state == "GAMEOVER":
+            if self.gameover_screen.handle_events(events) == "PLAY":
+                self.reset_game()
+                self.state = "PLAYING"
 
     def update(self, dt):
-        if self.state == "MENU":
-            self.menu_screen.update(dt)
-
-        elif self.state == "PLAYING":
+        if self.state == "PLAYING":
             keys = pygame.key.get_pressed()
             self.snake.handle_input(keys)
             self.snake.update(dt)
 
-            #   check colisions
+            #   check self-collisions
+            if self.snake.check_self_collision():
+                self.state = "GAMEOVER"
+
+            #   check cube collisions
             player_hitbox = self.snake.get_rect()
             for cube in self.cubes[:]:
                 if player_hitbox.colliderect(cube.rect):
                     self.points += 1
-                    self.snake.tail_length += 2
+                    self.snake.tail_length += num_tail_per_cube
                     self.cubes.remove(cube)
+
+    def draw_gameplay(self):
+        #   background
+        self.screen.fill("green")
+        #   cubes
+        for cube in self.cubes:
+            cube.draw(self.screen)
+        #   snake
+        self.snake.draw(self.screen)
+        #   points
+        points_text = self.font.render(f"{self.points}", True, (0,0,0))
+        points_pos = points_text.get_rect(midtop=(self.width / 2, 10))
+        self.screen.blit(points_text, points_pos)  
 
     def draw(self):
         if self.state == "MENU":
             self.menu_screen.draw(self.screen)
 
+        elif self.state == 'GAMEOVER':
+            #   gameplay on the bottom with the gameover screen above
+            self.draw_gameplay()
+            self.gameover_screen.draw(self.screen, self.points)
+
         elif self.state == "PLAYING":
-            #   background
-            self.screen.fill("green")
-            #   cubes
-            for cube in self.cubes:
-                cube.draw(self.screen)
-            #   snake
-            self.snake.draw(self.screen)
-            #   points
-            points_text = self.font.render(f"{self.points}", True, (0,0,0))
-            points_pos = points_text.get_rect(midtop=(self.width / 2, 10))
-            self.screen.blit(points_text, points_pos)
+            self.draw_gameplay()
 
         pygame.display.flip()
 

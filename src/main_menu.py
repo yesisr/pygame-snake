@@ -1,6 +1,9 @@
 import pygame
 from ui.button import Button
 
+title_text = "Snake"
+button_text = "PLAY"
+
 class MainMenu:
     def __init__(self, screen_width, screen_height):
         self.width = screen_width
@@ -8,7 +11,7 @@ class MainMenu:
 
         #   title
         self.font = pygame.font.Font(None, 80)
-        self.text = self.font.render("Snake", True, (0, 0, 0))
+        self.text = self.font.render(title_text, True, (0, 0, 0))
         self.text_rect = self.text.get_rect(center=(self.width / 2, self.height / 3))
 
         #   play button
@@ -16,7 +19,7 @@ class MainMenu:
         button_x = (self.width / 2) - (button_width / 2)
         button_y = self.height / 1.5
         
-        self.play_button = Button(button_x, button_y, button_width, button_height, "PLAY")
+        self.play_button = Button(button_x, button_y, button_width, button_height, button_text)
 
     def handle_events(self, events):
         """starts the game if player presses the button or spacebar"""
@@ -31,7 +34,7 @@ class MainMenu:
         return "MENU"
 
     def update(self, dt):   #   static right now
-        pass    
+        pass
 
     def draw(self, screen):
         screen.fill("green")
