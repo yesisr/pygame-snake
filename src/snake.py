@@ -5,7 +5,7 @@ tail_color = "blue"
 
 #   snake properties
 start_tail_length = 0
-turn_delay = 0.18   #    200*0.18 = 36pixels (4 pixels from the players size)
+turn_delay = 0.18   #    200*0.18 = 40pixels (head size)
 
 class Snake:
     def __init__(self, start_x, start_y, size, speed, screen_width, screen_height):

@@ -1,5 +1,4 @@
 import pygame
-
 from snake import Snake
 from cube import Cube
 from main_menu import MainMenu
@@ -25,20 +24,19 @@ class Game:
         self.menu_screen = MainMenu(self.width, self.height)
         self.gameover_screen = GameOver(self.width, self.height)
 
-        #   start timer (5 seconds to spawn)
+        #   spawn
         self.SPAWN_CUBE_EVENT = pygame.USEREVENT + 1
-        pygame.time.set_timer(self.SPAWN_CUBE_EVENT, 5000)
         
         self.reset_game()
         self.running = True
-        
         
     def reset_game(self):
         """resets every gameplay variable for the game loop"""
         self.snake = Snake(self.width / 4, self.height / 2, 40, 220, self.width, self.height)
         self.cubes = []
         self.points = 0
-        self.cubes.append(Cube(30, self.width, self.height))
+        #   timer 5 sec
+        pygame.time.set_timer(self.SPAWN_CUBE_EVENT, 5000)
 
     def handle_events(self):
         events = pygame.event.get()
